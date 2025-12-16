@@ -7,9 +7,9 @@ import androidx.room.PrimaryKey
 data class ItemNota(
     @PrimaryKey(autoGenerate = true)
     val id : Int = 0,
-    val nota_id : Int,
-    val nama_produk : String,
-    val harga_produk: Double,
-    val diskon_produk: Double,
-    val subtotal : Double
+    var nota_id : Int,
+    var nama_produk : String,
+    var harga_produk: Double,
+    var qty: Int,
+    var subtotal : Double
 )

@@ -4,10 +4,11 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import java.security.KeyStore
 
 @Database(entities = [Customer::class, Setting::class,
                      Produk::class, Nota::class,
-    ItemNota::class], version = 1, exportSchema = false)
+    ItemNota::class], version = 3, exportSchema = false)
 public abstract class CustomerDatabase : RoomDatabase() {
     abstract fun customerDao(): CustomerDao
     abstract fun settingDao(): SettingDao
@@ -19,8 +20,8 @@ public abstract class CustomerDatabase : RoomDatabase() {
         private var Instance : CustomerDatabase?=null
         fun getDatabase(context: Context): CustomerDatabase{
             return Instance?: synchronized(this){
-                Room.databaseBuilder(context, CustomerDatabase::class.java,"the-nota.db")
-                    .build().also { Instance = it }
+                Room.databaseBuilder(context, CustomerDatabase::class.java,"tnota.db")
+                    .fallbackToDestructiveMigration(true).build().also { Instance = it }
             }
         }
     }

@@ -1,4 +1,8 @@
 <resources>
-    <string name="app_name">The Notes</string>
+    <string name="app_name">The Nota</string>
     <string name="title_activity_tambah_customer">TambahCustomerActivity</string>
+    <string name="title_activity_detail_nota">DetailNota</string>
+    <string name="title_activity_add_produk">AddProdukActivity</string>
+    <string name="title_activity_edit_item_produk">EditItemProduk</string>
+    <string name="title_activity_share">ShareActivity</string>
 </resources>

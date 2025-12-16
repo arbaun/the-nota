@@ -8,5 +8,5 @@ import androidx.room.PrimaryKey
 data class Customer(
     @PrimaryKey(autoGenerate = true)
     val id:Int=0,
-    val nama: String
+    var nama: String
 )

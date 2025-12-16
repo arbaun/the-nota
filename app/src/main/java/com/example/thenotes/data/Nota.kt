@@ -7,7 +7,7 @@ import androidx.room.PrimaryKey
 data class Nota(
     @PrimaryKey(autoGenerate = true)
     val id : Int = 0,
-    val costumer_name: String,
-    val date_time : String,
-    val total: Double
+    var customer_name: String,
+    var date_time : String,
+    var total: Double
 )

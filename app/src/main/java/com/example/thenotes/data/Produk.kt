@@ -7,7 +7,6 @@ import androidx.room.PrimaryKey
 data class Produk(
     @PrimaryKey(autoGenerate = true)
     val id: Int=0,
-    val nama_produk: String,
-    val harga_produk: Double,
-    val diskon: Double = 0.toDouble()
+    var nama_produk: String,
+    var harga_produk: Double,
 )

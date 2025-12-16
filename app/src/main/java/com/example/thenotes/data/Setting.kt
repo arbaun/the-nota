@@ -7,6 +7,8 @@ import androidx.room.PrimaryKey
 data class Setting(
     @PrimaryKey(autoGenerate = true)
     val id:Int=0,
-    val nama_toko: String,
-    val catatan_kaki: String
+    var nama_toko: String,
+    var alamat_toko: String,
+    var uri_logo: String,
+    var catatan_kaki: String
 )

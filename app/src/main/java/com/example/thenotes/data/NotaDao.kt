@@ -18,8 +18,12 @@ interface NotaDao {
     suspend fun deleteNota(nota: Nota)
     @Query("select * from nota")
     fun getAllNota(): Flow<List<Nota>>
+    @Query("select * from nota where customer_name= :name")
+    fun getNotaByName(name: String): Flow<Nota>
     @Query("select * from nota where id= :id")
-    fun getNotaById(id: Int): Flow<Nota>
+    fun getNotaById(id:Int): Flow<Nota>
+    @Query("select * from nota where date_time= :datetime")
+    fun getNotaByDatetime(datetime: String): Flow<Nota>
 
 
 }

@@ -18,7 +18,10 @@ interface CustomerDao {
      fun getAllCustomer(): Flow<List<Customer>>
 
     @Query("select * from customer where id=:id")
-     fun getCustomerById(id:Int):Flow<Customer>
+     fun getCustomerById(id: Int):Flow<Customer>
+
+     @Query("select * from customer where nama like '%' || :nama || '%'")
+     fun getListCustomerByNama(nama: String): Flow<List<Customer>>
 
     @Update
     suspend fun update(customer:Customer)
