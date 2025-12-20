@@ -222,7 +222,7 @@ fun EditItem(name: String, ctx: Activity, container: AppContainer, id: Int) {
 
                                 textQty = 1.toString()
                                 textHarga = sugestions.harga_produk.toString()
-                                textSubtotal = formatter.format(sugestions.harga_produk)
+                                textSubtotal = formatter.format(itemNotaViewModel.calculateSubtotal(textHarga.toDouble(), textQty.toInt()))
 
                                 expanded = false
                                 focus.freeFocus()
@@ -237,7 +237,7 @@ fun EditItem(name: String, ctx: Activity, container: AppContainer, id: Int) {
                     textHarga = it
                     if (textHarga.isNotEmpty() && textQty.isNotEmpty()) {
 
-                        var subtotal = textHarga.toDouble() * textQty.toInt()
+                        var subtotal = itemNotaViewModel.calculateSubtotal(textHarga.toDouble(), textQty.toInt())
                         textSubtotal = formatter.format(subtotal)
 
                     } else {
@@ -278,7 +278,7 @@ fun EditItem(name: String, ctx: Activity, container: AppContainer, id: Int) {
                         textQty = qtye.toString()
                         if (textHarga.isNotEmpty() && textQty.isNotEmpty()) {
 
-                            var subtotal = textHarga.toDouble() * textQty.toInt()
+                            var subtotal = itemNotaViewModel.calculateSubtotal(textHarga.toDouble(), textQty.toInt())
                             textSubtotal = formatter.format(subtotal)
 
                         } else {
@@ -294,7 +294,7 @@ fun EditItem(name: String, ctx: Activity, container: AppContainer, id: Int) {
                         textQty = it
                         if (textHarga.isNotEmpty() && textQty.isNotEmpty()) {
 
-                            var subtotal = textHarga.toDouble() * textQty.toInt()
+                            var subtotal = itemNotaViewModel.calculateSubtotal(textHarga.toDouble(), textQty.toInt())
                             textSubtotal = formatter.format(subtotal)
 
                         } else {
@@ -303,7 +303,7 @@ fun EditItem(name: String, ctx: Activity, container: AppContainer, id: Int) {
                     },
                     Modifier.onFocusChanged { focusState ->
                         if (focusState.isFocused) {
-                            textQty = ""
+                            textQty = "0"
                         } else {
                             textQty = "0"
                         }
@@ -318,7 +318,7 @@ fun EditItem(name: String, ctx: Activity, container: AppContainer, id: Int) {
                     qtye += 1
                     textQty = qtye.toString()
                     if (textHarga.isNotEmpty() && textQty.isNotEmpty()) {
-                        var subtotal = textHarga.toDouble() * textQty.toInt()
+                        var subtotal = itemNotaViewModel.calculateSubtotal(textHarga.toDouble(), textQty.toInt())
                         textSubtotal = formatter.format(subtotal)
 
                     } else {

@@ -79,6 +79,7 @@ class AddProdukActivity : ComponentActivity() {
 @Composable
 fun TambahItem(name:String,ctx: Activity, datetime:String , container: AppContainer) {
     val context = LocalContext.current
+    val formatter = java.text.DecimalFormat("#,###")
     val itemNotaViewModel = ItemNotaViewModel(container.itemNotaRepository)
     val notaViewModel = NotaViewModel(container)
     val nota = notaViewModel.getNotaByDatetimeStream(datetime).collectAsState(Nota(0,"","",0.0)).value
@@ -189,7 +190,7 @@ fun TambahItem(name:String,ctx: Activity, datetime:String , container: AppContai
                                     selectedText = sugestions.nama_produk
                                     textQty = 1.toString()
                                     textHarga = sugestions.harga_produk.toString()
-                                    textSubtotal = sugestions.harga_produk.toString()
+                                    textSubtotal = formatter.format(itemNotaViewModel.calculateSubtotal(textHarga.toDouble(), textQty.toInt()))
                                     expanded = false
                                     focus.freeFocus()
                                 })
@@ -203,8 +204,8 @@ fun TambahItem(name:String,ctx: Activity, datetime:String , container: AppContai
                     textHarga=it
                     if(textHarga.isNotEmpty() && textQty.isNotEmpty()){
 
-                            var subtotal = textHarga.toDouble()* textQty.toInt()
-                            textSubtotal = subtotal.toString()
+                            var subtotal = itemNotaViewModel.calculateSubtotal(textHarga.toDouble(), textQty.toInt())
+                            textSubtotal = formatter.format(subtotal)
                     }else{
                         textSubtotal = "0"
                     }
@@ -241,8 +242,8 @@ fun TambahItem(name:String,ctx: Activity, datetime:String , container: AppContai
                             textQty =qtye.toString()
                             if(textHarga.isNotEmpty() && textQty.isNotEmpty()){
 
-                                    var subtotal = textHarga.toDouble()* textQty.toInt()
-                                    textSubtotal = subtotal.toString()
+                                    var subtotal = itemNotaViewModel.calculateSubtotal(textHarga.toDouble(), textQty.toInt())
+                                    textSubtotal = formatter.format(subtotal)
 
                             }else{
                                 textSubtotal = "0"
@@ -256,15 +257,15 @@ fun TambahItem(name:String,ctx: Activity, datetime:String , container: AppContai
                         onValueChange = { textQty=it
                             if(textHarga.isNotEmpty() && textQty.isNotEmpty()){
 
-                                    var subtotal = textHarga.toDouble()* textQty.toInt()
-                                    textSubtotal = subtotal.toString()
+                                    var subtotal = itemNotaViewModel.calculateSubtotal(textHarga.toDouble(), textQty.toInt())
+                                    textSubtotal = formatter.format(subtotal)
                             }else{
                                 textSubtotal = "0"
                             }
                                         },
                         Modifier.onFocusChanged{focusState ->
                             if(focusState.isFocused){
-                                textQty=""
+                                textQty="0"
                             }else{
                                 textQty="0"
                             }
@@ -280,17 +281,17 @@ fun TambahItem(name:String,ctx: Activity, datetime:String , container: AppContai
                         textQty =qtye.toString()
                         if(textHarga.isNotEmpty() && textQty.isNotEmpty()){
 
-                                var subtotal = textHarga.toDouble()* textQty.toInt()
-                                textSubtotal = subtotal.toString()
+                                var subtotal = itemNotaViewModel.calculateSubtotal(textHarga.toDouble(), textQty.toInt())
+                                textSubtotal = formatter.format(subtotal)
                         }else{
                             textSubtotal = "0"
                         }
                     }) {
-                        Icon(Icons.Default.Add, contentDescription = "add button")
+                        Icon(Icons.Default.Add, contentDescription = "plus button")
                     }
                 }
 
-                Text(textSubtotal, modifier.padding(10.dp))
+                Text(textSubtotal, modifier.padding(10.dp).fillMaxWidth())
 
         }
     }

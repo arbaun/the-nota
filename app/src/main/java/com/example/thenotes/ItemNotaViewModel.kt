@@ -25,4 +25,8 @@ class ItemNotaViewModel(private val itemNotaRepository: ItemNotaRepository): Vie
     fun updateItem(itemNota: ItemNota)= viewModelScope.launch(Dispatchers.IO){
         itemNotaRepository.updateItemNota(itemNota)
     }
+
+    fun calculateSubtotal(harga:Double, qty:Int):Double{
+        return harga*qty
+    }
 }

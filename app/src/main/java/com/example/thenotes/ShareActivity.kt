@@ -34,15 +34,26 @@ import android.graphics.Paint
 import android.graphics.RectF
 import android.graphics.Typeface
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.gestures.detectTransformGestures
+import androidx.compose.foundation.layout.offset
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
 import com.example.thenotes.data.AppContainer
@@ -56,6 +67,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
+import java.util.Locale
+import kotlin.math.absoluteValue
+import kotlin.math.roundToInt
 
 class ShareActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -79,6 +93,9 @@ class ShareActivity : ComponentActivity() {
 @Composable
 fun NotaView(id: Int, container: AppContainer, ctx: Activity){
     val context = LocalContext.current
+    var scale by remember { mutableStateOf(1f) }
+    var offset_x by remember { mutableStateOf(0f) }
+    var offset_y by remember { mutableStateOf(0f) }
     val coroutineScope = rememberCoroutineScope()
     var imagebytes by remember { mutableStateOf<ByteArray?>(null) }
     val settingViewModel = SettingViewModel(container.settingRepository)
@@ -120,16 +137,39 @@ fun NotaView(id: Int, container: AppContainer, ctx: Activity){
                                 notaBitmap = createNotaBitmap(listSetting = settinglist,imagebytes!!, listItemNota, nota)
                             }
                         }
+                    }else{
+                        notaBitmap = createBitmapNoLogo(listSetting = settinglist, listItemNota, nota)
                     }
 
 
                 }else{
-                    notaBitmap = createNotaBitmap(listSetting = settinglist,imagebytes!!, listItemNota, nota)
+                    notaBitmap = createBitmapNoLogo(listSetting = settinglist, listItemNota, nota)
                 }
                 notaBitmap?.let{
                     Image(
                         it.asImageBitmap(), "nota image",
-                        modifier, Alignment.Center
+                        modifier.padding(15.dp).fillMaxWidth()
+                            .offset{ IntOffset(offset_x.roundToInt(),offset_y.roundToInt()) }
+                            .graphicsLayer{
+                                scaleX = scale
+                                scaleY = scale
+                            }.pointerInput(Unit){
+                                detectTransformGestures { _,_,zoom,_->
+                                    scale = (scale*zoom).coerceIn(0.5f,3f)
+                                }
+
+                            }
+                            .pointerInput(Unit){
+                                detectDragGestures { _,dragAmount ->
+                                    val original = Offset(offset_x, offset_y)
+                                    val summed = original + dragAmount
+                                    val nilai_offset_baru = Offset(x = summed.x.coerceIn(0f,250.dp.toPx()),
+                                        y = summed.y.coerceIn(0f, 250.dp.toPx()))
+                                    offset_x = nilai_offset_baru.x
+                                    offset_y = nilai_offset_baru.y
+                                }
+                            }, Alignment.CenterStart,
+                        contentScale = ContentScale.Fit
                     )
                 }
 
@@ -179,7 +219,7 @@ fun createNotaBitmap(listSetting: List<Setting>, imagebytes: ByteArray, listItem
     val paintTeksBesar = Paint().apply {
         color = Color.BLACK
         textSize = 24f
-        textAlign = Paint.Align.CENTER
+        textAlign = Paint.Align.LEFT
         typeface= Typeface.DEFAULT_BOLD
     }
     val paintTeksKecil = Paint().apply {
@@ -214,16 +254,136 @@ fun createNotaBitmap(listSetting: List<Setting>, imagebytes: ByteArray, listItem
                 val bitmap = BitmapFactory.decodeByteArray(it, 0, it.size)
                 val matrix = android.graphics.Matrix()
                 matrix.reset()
-                val targetwidth =100f
-                val targetheight = 50f
-                val targetx= 10f
-                val targety= 30f
+                val targetwidth = bitmap.width.toFloat()/2f
+                val targetheight = bitmap.height.toFloat()/2f
+                val targetx= 60f
+                val targety= 0f
                 val scalex = targetwidth/ bitmap.width
                 val scaley = targetheight / bitmap.height
                 matrix.postScale(scalex,scaley)
                 matrix.postTranslate(targetx,targety)
                 canvas.drawBitmap(bitmap, matrix,paintBitmap)
             }
+        }
+        canvas.drawText(setting.nama_toko, lebarBitmap/2f+20,yPos,paintTeksBesar)
+        yPos +=40
+        setting.alamat_toko?.let {
+            canvas.drawText(it, lebarBitmap/2f+20,yPos, paintTeksKecil)
+        }
+        yPos+=200
+        val dtf = java.text.SimpleDateFormat("dd/MM/yyyy",Locale.ENGLISH)
+        val itdf = java.text.SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyyy",Locale.ENGLISH)
+        //val datetime = nota.date_time.replace("GMT+07:00","")
+        canvas.drawText(dtf.format(itdf.parse(nota.date_time)), lebarBitmap/2f,yPos, paintTeksKecil)
+        yPos += 15f
+        canvas.drawLine(0f, yPos, lebarBitmap.toFloat(),yPos, paintGaris )
+        yPos +=20
+        canvas.drawText(nota.customer_name, lebarBitmap/2f, yPos, paintTeksKecil.apply {
+            textAlign = Paint.Align.LEFT
+        })
+        yPos += 15f
+        canvas.drawLine(0f, yPos, lebarBitmap.toFloat(),yPos, paintGaris )
+        yPos +=20
+        paintTeksKecil.textAlign = Paint.Align.LEFT
+        val formater = java.text.DecimalFormat("#,###")
+        listItem.forEach { itemNota ->
+            canvas.drawText(itemNota.nama_produk, lebarBitmap/2f, yPos, paintTeksKecil)
+            yPos += 30f
+            canvas.drawText(formater.format(itemNota.subtotal), lebarBitmap-10f, yPos, paintTeksTotal.apply {
+                textAlign= Paint.Align.RIGHT;textSize=18f
+            })
+            canvas.drawText(itemNota.qty.toString(), lebarBitmap/2f, yPos, paintTeksKecil)
+            canvas.drawText("@ ${formater.format(itemNota.harga_produk)}", (lebarBitmap/2f)+20f, yPos, paintTeksKecil)
+            yPos+=30f
+        }
+        canvas.drawLine(0f, yPos, lebarBitmap.toFloat(), yPos, paintGaris)
+        yPos +=20
+        canvas.drawText("Total: ", lebarBitmap/2f, yPos, paintTeksTotal.apply {
+            textAlign= Paint.Align.LEFT;textSize=22f
+        })
+        canvas.drawText(formater.format(nota.total), lebarBitmap-10f, yPos, paintTeksTotal.apply {
+            textAlign= Paint.Align.RIGHT;textSize=24f
+        })
+        yPos +=40f
+        canvas.drawText(setting.catatan_kaki, lebarBitmap/2f+20, yPos, paintTeksKecil.apply {
+            textAlign= Paint.Align.LEFT;textSize=16f
+        })
+        yPos += 30
+    }else{
+        val datetime = nota.date_time.replace("GMT+07:00","")
+        canvas.drawText(datetime, lebarBitmap/2f,yPos, paintTeksKecil)
+        yPos += 15f
+        canvas.drawLine(0f, yPos, lebarBitmap.toFloat(),yPos, paintGaris )
+        yPos +=20
+        canvas.drawText(nota.customer_name, lebarBitmap/2f, yPos, paintTeksKecil.apply {
+            textAlign = Paint.Align.RIGHT
+        })
+        yPos += 15f
+        canvas.drawLine(0f, yPos, lebarBitmap.toFloat(),yPos, paintGaris )
+        yPos +=20
+        val formater = java.text.DecimalFormat("#,###")
+        listItem.forEach { itemNota ->
+            canvas.drawText(itemNota.nama_produk, lebarBitmap/2f, yPos, paintTeksKecil)
+            yPos += 30f
+            canvas.drawText(formater.format(itemNota.subtotal), lebarBitmap-10f, yPos, paintTeksTotal.apply {
+                textAlign= Paint.Align.RIGHT;textSize=18f
+            })
+            canvas.drawText(itemNota.qty.toString(), lebarBitmap/2f, yPos, paintTeksKecil)
+            canvas.drawText("@${formater.format(itemNota.harga_produk)}", (lebarBitmap/2f)+20f, yPos, paintTeksKecil)
+            yPos += 30f
+        }
+        canvas.drawLine(0f, yPos, lebarBitmap.toFloat(), yPos, paintGaris)
+        yPos +=20
+        canvas.drawText("Total: ", lebarBitmap/2f, yPos, paintTeksTotal.apply {
+            textAlign= Paint.Align.LEFT;textSize=22f
+        })
+        canvas.drawText(formater.format(nota.total), lebarBitmap-10f, yPos, paintTeksTotal.apply {
+            textAlign= Paint.Align.RIGHT;textSize=24f
+        })
+        yPos +=40f
+    }
+    val finalBitmap = Bitmap.createBitmap(bitmap, 0, 0, lebarBitmap, yPos.toInt()+10)
+    return finalBitmap
+}
+
+fun createBitmapNoLogo(listSetting: List<Setting>, listItem:List<ItemNota>, nota: Nota): Bitmap{
+    val lebarBitmap=700
+    var tinggiBitmap=0
+    val tinggiHeader = 150
+    val tinggiFooter = 100
+    val tinggiItem = 30
+    tinggiBitmap = tinggiHeader + tinggiFooter +(listItem.size* tinggiItem)+500
+    val bitmap = Bitmap.createBitmap(lebarBitmap, tinggiBitmap, Bitmap.Config.ARGB_8888)
+    val canvas = android.graphics.Canvas(bitmap)
+    canvas.drawColor(Color.WHITE)
+    val paintTeksBesar = Paint().apply {
+        color = Color.BLACK
+        textSize = 24f
+        textAlign = Paint.Align.LEFT
+        typeface= Typeface.DEFAULT_BOLD
+    }
+    val paintTeksKecil = Paint().apply {
+        color = Color.BLACK
+        textSize = 18f
+        textAlign = Paint.Align.LEFT
+        typeface = Typeface.MONOSPACE
+    }
+    val paintTeksTotal = Paint().apply {
+        color = Color.BLACK
+        textSize = 20f
+        textAlign = Paint.Align.RIGHT
+        typeface = Typeface.DEFAULT_BOLD
+    }
+    val paintGaris = Paint().apply {
+        color = Color.BLACK
+        strokeWidth= 2f
+    }
+    //lateinit var imagebytes : ByteArray
+    var yPos =30f
+    if(listSetting.isNotEmpty()){
+        lateinit var setting: Setting
+        listSetting.forEach { seting ->
+            setting = seting
         }
         canvas.drawText(setting.nama_toko, lebarBitmap/2f,yPos,paintTeksBesar)
         yPos +=40
@@ -232,28 +392,31 @@ fun createNotaBitmap(listSetting: List<Setting>, imagebytes: ByteArray, listItem
             yPos+=30
         }
         val datetime = nota.date_time.replace("GMT+07:00","")
-        canvas.drawText("Tanggal:${datetime}", 10f,yPos, paintTeksKecil)
-        canvas.drawText("Kepada: ${nota.customer_name}", lebarBitmap-10f, yPos, paintTeksKecil.apply {
-            textAlign = Paint.Align.RIGHT
+        canvas.drawText(datetime, lebarBitmap/2f,yPos, paintTeksKecil)
+        yPos += 15f
+        canvas.drawLine(0f, yPos, lebarBitmap.toFloat(),yPos, paintGaris )
+        yPos +=20
+        canvas.drawText(nota.customer_name, lebarBitmap/2f, yPos, paintTeksKecil.apply {
+            textAlign = Paint.Align.LEFT
         })
         yPos += 15f
-        canvas.drawLine(10f, yPos, lebarBitmap-10f,yPos, paintGaris )
+        canvas.drawLine(0f, yPos, lebarBitmap.toFloat(),yPos, paintGaris )
         yPos +=20
         paintTeksKecil.textAlign = Paint.Align.LEFT
         val formater = java.text.DecimalFormat("#,###")
         listItem.forEach { itemNota ->
-            canvas.drawText(itemNota.nama_produk, 10f, yPos, paintTeksKecil)
+            canvas.drawText(itemNota.nama_produk, lebarBitmap/2f, yPos, paintTeksKecil)
+            yPos += 30f
             canvas.drawText(formater.format(itemNota.subtotal), lebarBitmap-10f, yPos, paintTeksTotal.apply {
                 textAlign= Paint.Align.RIGHT;textSize=18f
             })
-            yPos += 30f
-            canvas.drawText(itemNota.qty.toString(), 10f, yPos, paintTeksKecil)
-            canvas.drawText("@${formater.format(itemNota.harga_produk)}", 30f, yPos, paintTeksKecil)
+            canvas.drawText(itemNota.qty.toString(), lebarBitmap/2f, yPos, paintTeksKecil)
+            canvas.drawText("@${formater.format(itemNota.harga_produk)}", (lebarBitmap/2f)+20f, yPos, paintTeksKecil)
             yPos+=30f
         }
-        canvas.drawLine(10f, yPos, lebarBitmap-10f, yPos, paintGaris)
+        canvas.drawLine(0f, yPos, lebarBitmap.toFloat(), yPos, paintGaris)
         yPos +=20
-        canvas.drawText("Total: ", 10f, yPos, paintTeksTotal.apply {
+        canvas.drawText("Total: ", lebarBitmap/2f, yPos, paintTeksTotal.apply {
             textAlign= Paint.Align.LEFT;textSize=22f
         })
         canvas.drawText(formater.format(nota.total), lebarBitmap-10f, yPos, paintTeksTotal.apply {
@@ -266,27 +429,30 @@ fun createNotaBitmap(listSetting: List<Setting>, imagebytes: ByteArray, listItem
         yPos += 30
     }else{
         val datetime = nota.date_time.replace("GMT+07:00","")
-        canvas.drawText("Tanggal:${datetime}", 10f,yPos, paintTeksKecil)
-        canvas.drawText("Kepada: ${nota.customer_name}", lebarBitmap-10f, yPos, paintTeksKecil.apply {
+        canvas.drawText(datetime, lebarBitmap/2f,yPos, paintTeksKecil)
+        yPos += 15f
+        canvas.drawLine(0f, yPos, lebarBitmap.toFloat(),yPos, paintGaris )
+        yPos +=20
+        canvas.drawText(nota.customer_name, lebarBitmap/2f, yPos, paintTeksKecil.apply {
             textAlign = Paint.Align.RIGHT
         })
         yPos += 15f
-        canvas.drawLine(10f, yPos, lebarBitmap-10f,yPos, paintGaris )
+        canvas.drawLine(0f, yPos, lebarBitmap.toFloat(),yPos, paintGaris )
         yPos +=20
         val formater = java.text.DecimalFormat("#,###")
         listItem.forEach { itemNota ->
-            canvas.drawText(itemNota.nama_produk, 10f, yPos, paintTeksKecil)
+            canvas.drawText(itemNota.nama_produk, lebarBitmap/2f, yPos, paintTeksKecil)
+            yPos += 30f
             canvas.drawText(formater.format(itemNota.subtotal), lebarBitmap-10f, yPos, paintTeksTotal.apply {
                 textAlign= Paint.Align.RIGHT;textSize=18f
             })
-            yPos += 30f
-            canvas.drawText(itemNota.qty.toString(), 10f, yPos, paintTeksKecil)
-            canvas.drawText("@${formater.format(itemNota.harga_produk)}", 30f, yPos, paintTeksKecil)
+            canvas.drawText(itemNota.qty.toString(), lebarBitmap/2f, yPos, paintTeksKecil)
+            canvas.drawText("@${formater.format(itemNota.harga_produk)}", (lebarBitmap/2f)+20f, yPos, paintTeksKecil)
             yPos += 30f
         }
-        canvas.drawLine(10f, yPos, lebarBitmap-10f, yPos, paintGaris)
+        canvas.drawLine(0f, yPos, lebarBitmap.toFloat(), yPos, paintGaris)
         yPos +=20
-        canvas.drawText("Total: ", 10f, yPos, paintTeksTotal.apply {
+        canvas.drawText("Total: ", lebarBitmap/2f, yPos, paintTeksTotal.apply {
             textAlign= Paint.Align.LEFT;textSize=22f
         })
         canvas.drawText(formater.format(nota.total), lebarBitmap-10f, yPos, paintTeksTotal.apply {
@@ -296,4 +462,5 @@ fun createNotaBitmap(listSetting: List<Setting>, imagebytes: ByteArray, listItem
     }
     val finalBitmap = Bitmap.createBitmap(bitmap, 0, 0, lebarBitmap, yPos.toInt()+10)
     return finalBitmap
+
 }

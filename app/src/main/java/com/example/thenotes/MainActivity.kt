@@ -37,6 +37,7 @@ import androidx.compose.material.icons.twotone.CollectionsBookmark
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -61,6 +62,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -76,6 +78,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.Locale
 import kotlin.math.roundToInt
 
 class MainActivity : ComponentActivity() {
@@ -346,7 +349,7 @@ fun ListProduct(modifier: Modifier = Modifier, container: AppContainer) {
                     items(produklist.value) { produk ->
                         var is_show_icon by remember { mutableStateOf(false) }
                         var offset_x by remember { mutableStateOf(0f) }
-                        Row(Modifier
+                        Row(Modifier.padding(10.dp).fillMaxWidth()
                             .clickable {
                                 val intent = Intent(context, EditItemProduk::class.java)
                                 intent.putExtra("name", "produk")
@@ -387,18 +390,25 @@ fun ListProduct(modifier: Modifier = Modifier, container: AppContainer) {
                                     tint = Color.White,
                                     modifier = Modifier
                                         .background(Color.Red)
-                                        .padding(10.dp)
+                                        .padding(end=10.dp)
                                 )
                             }
 
                             Text(
                                 produk.nama_produk,
-                                Modifier.fillMaxWidth(),
+                                Modifier.weight(0.8f),
                                 fontSize = 20.sp,
-                                textAlign = TextAlign.Justify
+                                textAlign = TextAlign.Start
+                            )
+                            val textformat = java.text.DecimalFormat("#,###")
+                            Text(text = textformat.format(produk.harga_produk),
+                                Modifier.weight(0.2f),
+                                fontSize = 20.sp,
+                                textAlign = TextAlign.End
                             )
 
                         }
+                        HorizontalDivider(Modifier.fillMaxWidth())
                     }
                 }
             } else {
@@ -496,7 +506,9 @@ fun NotesView(modifier: Modifier = Modifier, container: AppContainer) {
                             }
                             Column(Modifier.weight(0.8f).padding(end = 10.dp)) {
                                 Text(nota.customer_name, fontSize = 20.sp)
-                                val time = nota.date_time.replace("GMT+07:00", "")
+                                val idtf = java.text.SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH)
+                                val dtf = java.text.SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH)
+                                val time = dtf.format(idtf.parse(nota.date_time))
                                 Text(time, fontSize = 20.sp)
                             }
                             val formatter = java.text.DecimalFormat("#,###")
@@ -505,10 +517,11 @@ fun NotesView(modifier: Modifier = Modifier, container: AppContainer) {
                                     .collectAsState(listOf<ItemNota>()).value
                                 nota.total = notaViewModel.calculateTotal(listItem)
                             }
-                            Text(formatter.format(nota.total),Modifier.weight(0.2f), fontSize = 20.sp)
+                            Text(formatter.format(nota.total),Modifier.weight(0.2f), fontSize = 20.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.End)
 
 
                         }
+                        HorizontalDivider(Modifier.fillMaxWidth())
 
                     }
                 }

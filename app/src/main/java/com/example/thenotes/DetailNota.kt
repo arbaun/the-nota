@@ -32,6 +32,7 @@ import androidx.compose.material.icons.filled.Preview
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -50,6 +51,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -203,8 +207,9 @@ fun ViewDetailNota(datetime: String, container: AppContainer, ctx: Activity) {
                                     )
                                 }
                             }
-                            Text(formatter.format(itemNota.subtotal),Modifier.weight(0.2f), fontSize = 20.sp)
+                            Text(formatter.format(itemNota.subtotal),Modifier.weight(0.2f), fontSize = 20.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.End)
                         }
+                        HorizontalDivider(Modifier.fillMaxWidth())
                     }
 
                 }
