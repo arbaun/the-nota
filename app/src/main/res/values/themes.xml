@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.TheNotes" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="WhiteCalendarBlackText" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">#FFFFFF</item>
+        <item name="android:textColorPrimary">#000000</item>
+        <item name="android:colorAccent">#000000</item>
+        <item name="android:colorControlActivated">#000000</item>
+        <item name="android:textColorPrimaryInverse">#FFFFFF</item>
+        <item name="android:textColorSecondary">#666666</item>
+    </style>
+</resources>

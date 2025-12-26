@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">The Nota</string>
+    <string name="title_activity_tambah_customer">TambahCustomerActivty</string>
+    <string name="title_activity_detail_nota">DetailNota</string>
+    <string name="title_activity_add_produk">AddProdukActivity</string>
+    <string name="title_activity_edit_item_produk">EditItemProduk</string>
+    <string name="title_activity_share">ShareActivty</string>
+    <string name="title_activity_ganti_tanggal">GantiTanggalActivity</string>
+</resources>
