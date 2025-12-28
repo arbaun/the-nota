@@ -315,9 +315,15 @@ fun createNotaBitmap(listSetting: List<Setting>, imagebytes: ByteArray, listItem
             canvas.drawText(formater.format(itemNota.subtotal), lebarBitmap-10f, yPos, paintTeksTotal.apply {
                 textAlign= Paint.Align.RIGHT;textSize=18f;typeface= Typeface.DEFAULT_BOLD
             })
-            canvas.drawText(itemNota.qty.toString(), 120f, yPos, paintTeksTotal.apply {
-                typeface = Typeface.DEFAULT
-            })
+            itemNota.unit_produk?.let {
+                canvas.drawText(itemNota.qty.toString()+" ${it.toString()} ", 120f, yPos, paintTeksTotal.apply {
+                    typeface = Typeface.DEFAULT
+                })
+            }?:run {
+                canvas.drawText(itemNota.qty.toString()+" ", 120f, yPos, paintTeksTotal.apply {
+                    typeface = Typeface.DEFAULT
+                })
+            }
             canvas.drawText("@ ${formater.format(itemNota.harga_produk)}", 240f, yPos, paintTeksTotal)
             yPos+=20f
         }
@@ -464,9 +470,15 @@ fun createBitmapNoLogo(listSetting: List<Setting>, listItem:List<ItemNota>, nota
             canvas.drawText(formater.format(itemNota.subtotal), lebarBitmap-10f, yPos, paintTeksTotal.apply {
                 textAlign= Paint.Align.RIGHT;textSize=18f;typeface= Typeface.DEFAULT_BOLD
             })
-            canvas.drawText(itemNota.qty.toString(), 120f, yPos, paintTeksTotal.apply {
-                typeface = Typeface.DEFAULT
-            })
+            itemNota.unit_produk?.let {
+                canvas.drawText(itemNota.qty.toString()+" ${it.toString()} ", 120f, yPos, paintTeksTotal.apply {
+                    typeface = Typeface.DEFAULT
+                })
+            }?:run {
+                canvas.drawText(itemNota.qty.toString()+" ", 120f, yPos, paintTeksTotal.apply {
+                    typeface = Typeface.DEFAULT
+                })
+            }
             canvas.drawText("@ ${formater.format(itemNota.harga_produk)}", 240f, yPos, paintTeksTotal)
             yPos+=20f
         }
@@ -509,9 +521,15 @@ fun createBitmapNoLogo(listSetting: List<Setting>, listItem:List<ItemNota>, nota
             canvas.drawText(formater.format(itemNota.subtotal), lebarBitmap-10f, yPos, paintTeksTotal.apply {
                 textAlign= Paint.Align.RIGHT;textSize=18f;typeface= Typeface.DEFAULT_BOLD
             })
-            canvas.drawText(itemNota.qty.toString(), 120f, yPos, paintTeksTotal.apply {
-                typeface = Typeface.DEFAULT
-            })
+            itemNota.unit_produk?.let {
+                canvas.drawText(itemNota.qty.toString()+" ${it.toString()} ", 120f, yPos, paintTeksTotal.apply {
+                    typeface = Typeface.DEFAULT
+                })
+            }?:run {
+                canvas.drawText(itemNota.qty.toString()+" ", 120f, yPos, paintTeksTotal.apply {
+                    typeface = Typeface.DEFAULT
+                })
+            }
             canvas.drawText("@ ${formater.format(itemNota.harga_produk)}", 240f, yPos, paintTeksTotal)
             yPos+=20f
         }

@@ -94,6 +94,7 @@ fun TambahItem(name:String,ctx: Activity, datetime:String , container: AppContai
     var text by remember { mutableStateOf("Nama Produk") }
     var textHarga by remember { mutableStateOf("0") }
     var textQty by remember { mutableStateOf("0") }
+    var textUnit by remember { mutableStateOf("") }
     var initFocusState by remember { mutableStateOf(false) }
     var initFocusHargaState by remember { mutableStateOf(false) }
     var textSubtotal by remember { mutableStateOf("0") }
@@ -115,19 +116,20 @@ fun TambahItem(name:String,ctx: Activity, datetime:String , container: AppContai
                                 val itemNota = ItemNota(
                                     id = 0, notaId,
                                     text.toString(), textHarga.toDouble(),
-                                    textQty.toInt(), textSubtotal.filter { it.isDigit() }.toDouble()
+                                    textUnit.takeIf { it.isNotBlank() },textQty.toInt(), textSubtotal.filter { it.isDigit() }.toDouble()
                                 )
                                 itemNotaViewModel.inserItem(itemNota)
                             }else {
                                 val produk = Produk(
                                     id = 0, text.toString(),
-                                    textHarga.toDouble()
+                                    textHarga.toDouble(),
+                                    textUnit.takeIf { it.isNotBlank() }
                                 )
                                 viewModelProduk.addProduk(produk)
                                 val itemNota = ItemNota(
                                     id = 0, notaId,
                                     text.toString(), textHarga.toDouble(),
-                                    textQty.toInt(), textSubtotal.filter { it.isDigit() }.toDouble()
+                                    textUnit.takeIf { it.isNotBlank() },textQty.toInt(), textSubtotal.filter { it.isDigit() }.toDouble()
                                 )
                                 itemNotaViewModel.inserItem(itemNota)
                             }
@@ -194,9 +196,16 @@ fun TambahItem(name:String,ctx: Activity, datetime:String , container: AppContai
                                 onClick = {
                                     text = sugestions.nama_produk
                                     selectedText = sugestions.nama_produk
-                                    textQty = 1.toString()
+                                    if(textQty.contentEquals("0")){
+                                        textQty=1.toString()
+                                    }
                                     textHarga = sugestions.harga_produk.toString()
                                     textSubtotal = formatter.format(itemNotaViewModel.calculateSubtotal(textHarga.toDouble(), textQty.toInt()))
+                                    textUnit = sugestions.unit_produk?.let{
+                                        it.toString()
+                                    }?:run{
+                                        ""
+                                    }
                                     expanded = false
                                     focus.freeFocus()
                                 })
@@ -239,6 +248,25 @@ fun TambahItem(name:String,ctx: Activity, datetime:String , container: AppContai
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Number
                 )
+            )
+            TextField(
+                value = textUnit,
+                onValueChange = { textUnit = it },
+                Modifier.onFocusChanged { focusState ->
+                    if (focusState.isFocused) {
+                        if (!initFocusState) {
+                            initFocusState = true;
+                        }
+                    }
+                }.padding(top = 20.dp).fillMaxWidth(),
+
+                label = {
+                    if (initFocusState) {
+                        Text("Unit")
+                    } else {
+                        Text("Unit")
+                    }
+                }
             )
                 Row(Modifier.fillMaxWidth().padding(top=20.dp)) {
                     IconButton(onClick = {
@@ -309,6 +337,7 @@ fun TambahProduk(name:String,ctx: Activity, container: AppContainer) {
     val context = LocalContext.current
     var text by remember { mutableStateOf("Nama Produk") }
     var textHarga by remember { mutableStateOf("0") }
+    var textUnit by remember { mutableStateOf("") }
     var initFocusState by remember { mutableStateOf(false) }
     var initFocusHargaState by remember { mutableStateOf(false) }
     val viewModelProduk = ProdukViewModel(container.produkRepository)
@@ -320,10 +349,10 @@ fun TambahProduk(name:String,ctx: Activity, container: AppContainer) {
             } },
             actions = {IconButton(onClick = {
 
-                    if(text.isNotEmpty() && textHarga.isNotEmpty()) {
+                    if(text.isNotEmpty() && textHarga.isNotEmpty()&& textUnit.isNotEmpty()) {
 
                             val produk = Produk(id=0, text.toString(),
-                                textHarga.toDouble())
+                                textHarga.toDouble(), unit_produk = textUnit.takeIf { it.isNotBlank() })
                             viewModelProduk.addProduk(produk)
 
                     }
@@ -335,18 +364,18 @@ fun TambahProduk(name:String,ctx: Activity, container: AppContainer) {
             }}
         ) }) { innerPadding->
         var modifier = Modifier.padding(innerPadding).fillMaxWidth()
-        Column(modifier.padding(10.dp)) {
+        Column(modifier) {
                 TextField(
                     value = text,
                     onValueChange = { text = it },
-                    modifier.onFocusChanged { focusState ->
+                    Modifier.onFocusChanged { focusState ->
                         if (focusState.isFocused) {
                             if (!initFocusState) {
                                 text = ""
                                 initFocusState = true;
                             }
                         }
-                    }.padding(10.dp),
+                    }.padding(bottom =10.dp).fillMaxWidth(),
 
                     label = {
                         if (initFocusState) {
@@ -362,7 +391,7 @@ fun TambahProduk(name:String,ctx: Activity, container: AppContainer) {
                 onValueChange = {
                     textHarga=it
                 },
-                modifier.onFocusChanged{focusState ->
+                Modifier.onFocusChanged{focusState ->
                     if (focusState.isFocused){
                         if(!initFocusHargaState){
                             textHarga="0"
@@ -374,7 +403,7 @@ fun TambahProduk(name:String,ctx: Activity, container: AppContainer) {
                         }
                     }
 
-                }.padding(10.dp),
+                }.padding(bottom=10.dp).fillMaxWidth(),
                 label = {
                     if (initFocusHargaState){
                         Text("Harga Produk")
@@ -387,6 +416,25 @@ fun TambahProduk(name:String,ctx: Activity, container: AppContainer) {
                 )
             )
 
+            TextField(
+                value = textUnit,
+                onValueChange = { textUnit = it },
+                Modifier.onFocusChanged { focusState ->
+                    if (focusState.isFocused) {
+                        if (!initFocusState) {
+                            initFocusState = true;
+                        }
+                    }
+                }.padding(bottom=10.dp).fillMaxWidth(),
+
+                label = {
+                    if (initFocusState) {
+                        Text("Unit")
+                    } else {
+                        Text("Unit")
+                    }
+                }
+            )
 
         }
     }

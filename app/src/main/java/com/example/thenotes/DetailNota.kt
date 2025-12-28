@@ -199,7 +199,11 @@ fun ViewDetailNota(datetime: String, container: AppContainer, ctx: Activity) {
                             Column(Modifier.weight(0.8f).padding(end=10.dp)) {
                                 Text(itemNota.nama_produk, fontSize = 20.sp)
                                 Row {
-                                    Text(itemNota.qty.toString(), fontSize = 20.sp)
+                                    itemNota.unit_produk?.let{
+                                        Text(itemNota.qty.toString()+" ${it.toString()}", fontSize = 20.sp)
+                                    }?:run {
+                                        Text(itemNota.qty.toString(), fontSize = 20.sp)
+                                    }
                                     Spacer(Modifier.width(20.dp))
                                     Text(
                                         formatter.format(itemNota.harga_produk),

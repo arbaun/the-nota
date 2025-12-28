@@ -372,10 +372,25 @@ fun ListProduct(modifier: Modifier = Modifier, container: AppContainer) {
 
                             Text(
                                 produk.nama_produk,
-                                Modifier.weight(0.8f),
+                                Modifier.weight(0.6f),
                                 fontSize = 20.sp,
                                 textAlign = TextAlign.Start
                             )
+                            produk.unit_produk?.let {
+                                Text(
+                                    it,
+                                    Modifier.weight(0.2f),
+                                    fontSize = 20.sp,
+                                    textAlign = TextAlign.Start
+                                )
+                            }?:run {
+                                Text(
+                                    "",
+                                    Modifier.weight(0.2f),
+                                    fontSize = 20.sp,
+                                    textAlign = TextAlign.Start
+                                )
+                            }
                             val textformat = java.text.DecimalFormat("#,###")
                             Text(text = textformat.format(produk.harga_produk),
                                 Modifier.weight(0.2f),

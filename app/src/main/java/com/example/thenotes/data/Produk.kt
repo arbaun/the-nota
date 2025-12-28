@@ -9,4 +9,5 @@ data class Produk(
     val id: Int=0,
     var nama_produk: String,
     var harga_produk: Double,
+    var unit_produk: String?,
 )

@@ -87,10 +87,11 @@ fun EditItem(name: String, ctx: Activity, container: AppContainer, id: Int) {
     var is_first_run by remember { mutableStateOf(true) }
     val itemNotaViewModel = ItemNotaViewModel(container.itemNotaRepository)
     val itemNota = itemNotaViewModel.getItemNotaByIdStream(id)
-        .collectAsState(ItemNota(0, 0, "", 0.0, 0, 0.0)).value
+        .collectAsState(ItemNota(0, 0, "", 0.0, "",0, 0.0)).value
     var selectedText by remember { mutableStateOf("") }
     var text by remember { mutableStateOf("Nama Produk") }
     var textHarga by remember { mutableStateOf("0") }
+    var textUnit by remember { mutableStateOf("") }
     var textQty by remember { mutableStateOf("0") }
     var p_name = itemNota.nama_produk
     var initFocusState by remember { mutableStateOf(false) }
@@ -122,6 +123,7 @@ fun EditItem(name: String, ctx: Activity, container: AppContainer, id: Int) {
                             if (text.contentEquals(selectedText)) {
                                 itemNota.nama_produk = text
                                 itemNota.harga_produk = textHarga.toDouble()
+                                itemNota.unit_produk = textUnit.takeIf { it.isNotBlank() }
                                 itemNota.qty = textQty.toInt()
                                 itemNota.subtotal = textSubtotal.filter { it.isDigit() }.toDouble()
                                 itemNotaViewModel.updateItem(itemNota)
@@ -129,12 +131,14 @@ fun EditItem(name: String, ctx: Activity, container: AppContainer, id: Int) {
                                 if (text.contentEquals(p_name)) {
                                     itemNota.qty = textQty.toInt()
                                     itemNota.harga_produk = textHarga.toDouble()
+                                    itemNota.unit_produk = textUnit.takeIf { it.isNotBlank() }
                                     itemNota.subtotal = textSubtotal.filter { it.isDigit() }.toDouble()
                                     itemNotaViewModel.updateItem(itemNota)
                                 } else {
                                     val produk = Produk(
                                         id = 0, text,
-                                        textHarga.toDouble()
+                                        textHarga.toDouble(),
+                                        textUnit.takeIf { it.isNotBlank() }
                                     )
                                     viewModelProduk.addProduk(produk)
                                     itemNota.nama_produk = text
@@ -161,6 +165,9 @@ fun EditItem(name: String, ctx: Activity, container: AppContainer, id: Int) {
                 textHarga = itemNota.harga_produk.toString()
                 textQty = itemNota.qty.toString()
                 textSubtotal = formatter.format(itemNota.subtotal)
+                textUnit = itemNota.unit_produk?.let {
+                    it
+                }?:run{""}
                 is_first_run = false
             }
         }
@@ -217,9 +224,12 @@ fun EditItem(name: String, ctx: Activity, container: AppContainer, id: Int) {
                             onClick = {
                                 text = sugestions.nama_produk
                                 selectedText = sugestions.nama_produk
-                                textQty = 1.toString()
+                                if(textQty.contentEquals("0")){
+                                    textQty=1.toString()
+                                }
                                 textHarga = sugestions.harga_produk.toString()
                                 textSubtotal = formatter.format(itemNotaViewModel.calculateSubtotal(textHarga.toDouble(), textQty.toInt()))
+                                textUnit = sugestions.unit_produk?.let { it }?:run{""}
                                 expanded = false
                                 focus.freeFocus()
                             })
@@ -257,6 +267,25 @@ fun EditItem(name: String, ctx: Activity, container: AppContainer, id: Int) {
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Number
                 )
+            )
+            TextField(
+                value = textUnit,
+                onValueChange = { textUnit = it },
+                Modifier.onFocusChanged { focusState ->
+                    if (focusState.isFocused) {
+                        if (!initFocusState) {
+                            initFocusState = true;
+                        }
+                    }
+                }.padding(top=20.dp).fillMaxWidth(),
+
+                label = {
+                    if (initFocusState) {
+                        Text("Unit")
+                    } else {
+                        Text("Unit")
+                    }
+                }
             )
             Row(Modifier.fillMaxWidth().padding(top=20.dp)) {
                 IconButton(onClick = {
@@ -327,12 +356,18 @@ fun EditProduk(name: String, ctx: Activity, container: AppContainer, id: Int) {
     val context = LocalContext.current
     var text by remember { mutableStateOf("Nama Produk") }
     var textHarga by remember { mutableStateOf("0") }
+    var textUnit by remember { mutableStateOf("") }
     var initFocusState by remember { mutableStateOf(false) }
     var initFocusHargaState by remember { mutableStateOf(false) }
     val viewModelProduk = ProdukViewModel(container.produkRepository)
-    val produk = viewModelProduk.getProdukById(id).collectAsState(Produk(0, "", 0.0)).value
+    val produk = viewModelProduk.getProdukById(id).collectAsState(Produk(0, "", 0.0, "")).value
     text = produk.nama_produk
     textHarga = produk.harga_produk.toString()
+    textUnit = produk.unit_produk?.let{
+        it.toString()
+    }?:run {
+        ""
+    }
     Scaffold(
         Modifier.fillMaxSize(),
         topBar = {
@@ -350,6 +385,7 @@ fun EditProduk(name: String, ctx: Activity, container: AppContainer, id: Int) {
 
                             produk.nama_produk = text
                             produk.harga_produk = textHarga.toDouble()
+                            produk.unit_produk = textUnit.takeIf { it.isNotBlank() }
                             viewModelProduk.updateProduk(produk)
 
 
@@ -363,8 +399,8 @@ fun EditProduk(name: String, ctx: Activity, container: AppContainer, id: Int) {
                 }
             )
         }) { innerPadding ->
-        var modifier = Modifier.padding(innerPadding)
-        Column(modifier.padding(10.dp)) {
+        var modifier = Modifier.padding(innerPadding).fillMaxWidth()
+        Column(modifier) {
             TextField(
                 value = text,
                 onValueChange = { text = it },
@@ -376,7 +412,7 @@ fun EditProduk(name: String, ctx: Activity, container: AppContainer, id: Int) {
                             }
                         }
                     }
-                    .padding(10.dp),
+                    .padding(10.dp).fillMaxWidth(),
 
                 label = {
                     if (initFocusState) {
@@ -401,7 +437,7 @@ fun EditProduk(name: String, ctx: Activity, container: AppContainer, id: Int) {
                         }
 
                     }
-                    .padding(10.dp),
+                    .padding(10.dp).fillMaxWidth(),
                 label = {
                     if (initFocusHargaState) {
                         Text("Harga Produk")
@@ -413,6 +449,25 @@ fun EditProduk(name: String, ctx: Activity, container: AppContainer, id: Int) {
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Number
                 )
+            )
+            TextField(
+                value = textUnit,
+                onValueChange = { textUnit = it },
+                Modifier.onFocusChanged { focusState ->
+                    if (focusState.isFocused) {
+                        if (!initFocusState) {
+                            initFocusState = true;
+                        }
+                    }
+                }.padding(top=10.dp).fillMaxWidth(),
+
+                label = {
+                    if (initFocusState) {
+                        Text("Unit")
+                    } else {
+                        Text("Unit")
+                    }
+                }
             )
 
 

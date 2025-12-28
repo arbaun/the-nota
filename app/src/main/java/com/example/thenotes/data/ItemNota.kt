@@ -10,6 +10,7 @@ data class ItemNota(
     var nota_id : Int,
     var nama_produk : String,
     var harga_produk: Double,
+    var unit_produk: String?,
     var qty: Int,
     var subtotal : Double
 )
