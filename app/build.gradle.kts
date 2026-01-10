@@ -6,18 +6,17 @@ plugins {
 }
 
 android {
-    namespace = "com.example.thenotes"
+    namespace = "com.arbadev.thenota"
     compileSdk {
         version = release(36)
     }
 
     defaultConfig {
-        applicationId = "com.example.thenotes"
+        applicationId = "com.arbadev.thenotes"
         minSdk = 31
         targetSdk = 36
-        versionCode = 2
-        versionName = "2.1.6"
-
+        versionCode = 217
+        versionName = "2.1.7"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -28,6 +27,15 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+        }
+        debug {
+           // isMinifyEnabled=true
+            //isShrinkResources=false
+            //proguardFiles(
+             //   getDefaultProguardFile("proguard-android-optimize.txt"),
+              //  "proguard-rules.pro"
+            //)
+
         }
     }
     compileOptions {
@@ -43,6 +51,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.core)
     val room_version = "2.8.4"
     implementation("androidx.room:room-runtime:$room_version")
     implementation("androidx.room:room-ktx:2.8.4")
@@ -58,6 +67,10 @@ dependencies {
     implementation(libs.androidx.compose.material3.adaptive.navigation.suite)
     implementation(libs.androidx.compose.material.icons.extended.android)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.camera2)
+    implementation(libs.androidx.camera.lifecycle)
+    implementation(libs.androidx.camera.view)
+    implementation(libs.google.mlkit)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -65,4 +78,10 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+}
+configurations.all{
+    exclude(group="com.esotericsoftware", module = "kryo")
+    exclude(group="com.esotericsoftware", module = "reflectasm")
+    exclude(group="com.esotericsoftware", module = "minlog")
+    exclude(group="org.objenesis", module = "objenesis")
 }

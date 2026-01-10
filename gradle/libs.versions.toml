@@ -10,8 +10,17 @@ activityCompose = "1.8.0"
 composeBom = "2024.09.00"
 materialIconsExtendedAndroid = "1.7.8"
 material3 = "1.4.0"
+camera2= "1.5.2"
+camera-lifecycle= "1.5.2"
+camera-view = "1.5.2"
+barcodescanning = "17.3.0"
+core = "3.5.3"
 
 [libraries]
+androidx-camera2 = {group = "androidx.camera", name="camera-camera2", version.ref="camera2"}
+androidx-camera-lifecycle = {group = "androidx.camera", name = "camera-lifecycle", version.ref = "camera-lifecycle"}
+androidx-camera-view = {group = "androidx.camera", name = "camera-view", version.ref = "camera-view"}
+google-mlkit = {group = "com.google.mlkit", name = "barcode-scanning", version.ref = "barcodescanning"}
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
@@ -29,6 +38,7 @@ androidx-compose-material3 = { group = "androidx.compose.material3", name = "mat
 androidx-compose-material3-adaptive-navigation-suite = { group = "androidx.compose.material3", name = "material3-adaptive-navigation-suite" }
 androidx-compose-material-icons-extended-android = { group = "androidx.compose.material", name = "material-icons-extended-android", version.ref = "materialIconsExtendedAndroid" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3" }
+core = { group = "com.google.zxing", name = "core", version.ref = "core" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
