@@ -2,6 +2,7 @@
 <resources>
 
     <style name="Theme.TheNotes" parent="android:Theme.Material.Light.NoActionBar" />
+
     <style name="WhiteCalendarBlackText" parent="android:Theme.Material.Light.NoActionBar">
         <item name="android:windowBackground">#FFFFFF</item>
         <item name="android:textColorPrimary">#000000</item>

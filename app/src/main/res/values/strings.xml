@@ -6,4 +6,5 @@
     <string name="title_activity_edit_item_produk">EditItemProduk</string>
     <string name="title_activity_share">ShareActivty</string>
     <string name="title_activity_ganti_tanggal">GantiTanggalActivity</string>
+    <string name="title_activity_produk_share_qr_code">ProdukShareQrCodeActivity</string>
 </resources>
